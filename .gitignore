@@ -40,10 +40,11 @@ captures/
 
 # IntelliJ
 *.iml
+.idea/.name
+.idea/jarRepositories.xml
 .idea/.gitignore
 .idea/compiler.xml
 .idea/inspectionProfiles/
-.idea/jarRepositories.xml
 .idea/misc.xml
 .idea/workspace.xml
 .idea/tasks.xml
