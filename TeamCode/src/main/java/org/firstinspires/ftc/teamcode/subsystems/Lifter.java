@@ -9,12 +9,13 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 public class Lifter {
 
     private final LinearOpMode robotOpMode;
-    private DcMotor lifter;
+    private DcMotorEx lifter;
 
     //cone is 5 cones stacked tall
 
     private final int   CONE  = 205;
     private final int   HIGH  = 1570;
+    private final int   DOWNISH = 1450;
     private final int    MID  = 1140;
     private final int    LOW  = 670;
     private final int GROUND  = 0;
@@ -31,7 +32,8 @@ public class Lifter {
         lifter = robotOpMode.hardwareMap.get(DcMotorEx.class, "lifter");
         lifter.setDirection(DcMotor.Direction.REVERSE);
         lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lifter.setTargetPosition(5);
     }
 
     public int getPosition() {
@@ -41,7 +43,7 @@ public class Lifter {
     private void setPosition(int position){
         lifter.setTargetPosition(position);
         lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        lifter.setPower(1);
+        lifter.setVelocity(1000);
     }
 
     public void high() {
@@ -63,5 +65,20 @@ public class Lifter {
     public void cone() {
         this.setPosition(CONE);
     }
+
+    public void downish() {
+        this.setPosition(DOWNISH);
+    }
+
+    public void upALittle(){
+        int UP = this.getPosition() + 10;
+        this.setPosition(UP);
+    }
+
+    public void downALittle(){
+        int DOWN = this.getPosition() - 10;
+        this.setPosition(DOWN);
+    }
+
 
 }
