@@ -12,6 +12,7 @@ import java.util.List;
 
 
 public class Vision {
+
     private final LinearOpMode robotOpMode;
     private static final String[] LABELS = {
             "image1",
@@ -22,13 +23,15 @@ public class Vision {
     private VuforiaLocalizer vuforia;
     private TFObjectDetector tfod;
 
-    private final Pose2d leftPosition1 = new Pose2d(-59, -12, Math.toRadians(0));
-    private final Pose2d leftPosition2 = new Pose2d(-36, -12, Math.toRadians(0));
-    private final Pose2d leftPosition3 = new Pose2d(-12, -12, Math.toRadians(0));
+    private final Pose2d leftPosition1 = new Pose2d(-57, -11, Math.toRadians(0));
+    private final Pose2d leftPosition2 = new Pose2d(-36, -11, Math.toRadians(0));
+    private final Pose2d leftPosition3 = new Pose2d(-12, -11, Math.toRadians(0));
 
-    private final Pose2d rightPosition1 = new Pose2d(12, -12, Math.toRadians(180));
-    private final Pose2d rightPosition2 = new Pose2d(36, -12, Math.toRadians(180));
-    private final Pose2d rightPosition3 = new Pose2d(59, -12, Math.toRadians(180));
+    private final Pose2d rightPosition1 = new Pose2d(12, -11, Math.toRadians(180));
+    private final Pose2d rightPosition2 = new Pose2d(36, -13, Math.toRadians(180));
+    private final Pose2d rightPosition3 = new Pose2d(55, -10, Math.toRadians(180));
+
+// x=12
 
 
     public Vision (LinearOpMode opMode) {
@@ -63,6 +66,8 @@ public class Vision {
             tfod.activate();
             tfod.setZoom(1, 16.0 / 9.0);
         }
+
+
     }
 
 
@@ -82,60 +87,47 @@ public class Vision {
         Telemetry telemetry = robotOpMode.telemetry;
         boolean imageDetected = false;
 
-        Pose2d position = leftPosition2;
+        Pose2d position = (side.equals("left")) ? leftPosition2 : rightPosition2;
 
-        double loopCount = 0;
+        int loopCount = 0;
 
-        while ( loopCount < 100 || !imageDetected ) {
-
-            if (tfod == null) {
-                telemetry.addData("detectFinalPosition", "Error: tfod is null");
-                telemetry.update();
-                continue;
-            }
-
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-
-            if (updatedRecognitions == null) {
-                telemetry.addData("detectFinalPosition", "Error: updateRecognitions is null");
-                telemetry.update();
-                continue;
-            }
-
-            telemetry.addData("Objects Detected", updatedRecognitions.size());
-
-            for (Recognition object : updatedRecognitions) {
-
-                telemetry.addData(object.getLabel(), "   %.0f%%", object.getConfidence() * 100);
-                telemetry.addData("finalPosition", object.getLabel());
-                telemetry.update();
-
-                if (isImage1(object)) {
-                    position = (side.equals("left")) ? leftPosition1 : rightPosition1;
-                    imageDetected = true;
-                }
-
-                if (isImage2(object)) {
-                    position = (side.equals("left")) ? leftPosition2 : rightPosition2;
-                    imageDetected = true;
-                }
-
-                if (isImage3(object)) {
-                    position = (side.equals("left")) ? leftPosition3 : rightPosition3;
-                    imageDetected = true;
-                }
-            }
-
+        while ( loopCount <= 1000 || !imageDetected ) {
+            telemetry.addData("loopCount", loopCount);
             telemetry.update();
 
-            loopCount++;
+            if (tfod != null) {
+
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+
+                if (updatedRecognitions != null) {
+
+                    telemetry.addData("Objects Detected", updatedRecognitions.size());
+                    telemetry.update();
+
+                    for (Recognition object : updatedRecognitions) {
+
+                        if (isImage1(object)) {
+                            position = (side.equals("left")) ? leftPosition1 : rightPosition1;
+                            imageDetected = true;
+                        }
+
+                        if (isImage2(object)) {
+                            position = (side.equals("left")) ? leftPosition2 : rightPosition2;
+                            imageDetected = true;
+                        }
+
+                        if (isImage3(object)) {
+                            position = (side.equals("left")) ? leftPosition3 : rightPosition3;
+                            imageDetected = true;
+                        }
+                    }
+                }
+
+                loopCount++;
+            }
         }
 
         return position;
-    }
-
-    public Pose2d getRightFinalPosition() {
-        return rightPosition2;
     }
 
 }

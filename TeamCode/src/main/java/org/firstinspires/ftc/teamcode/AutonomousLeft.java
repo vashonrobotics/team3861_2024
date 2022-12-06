@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.subsystems.GrabberServo;
 @Config
 @Autonomous(group = "drive")
 public class AutonomousLeft extends LinearOpMode {
-    //private TrajectorySequence robotTrajectory;
+
     private final Pose2d startPose = new Pose2d(-36, -61, Math.toRadians(90));
     private BotMecanumDrive drive;
     private Lifter lifter;
@@ -44,11 +44,14 @@ public class AutonomousLeft extends LinearOpMode {
 
         waitForStart();
 
-        Pose2d finalPose = vision.detectFinalPosition("left");
-        telemetry.addData("finalPositionX", finalPose.getX());
-        telemetry.update();
+
 
         while (!isStopRequested()) {
+
+            Pose2d finalPose = vision.detectFinalPosition("left");
+            telemetry.addData("finalPositionX", finalPose.getX());
+            telemetry.update();
+
             drive.followTrajectorySequence(defaultTrajectory(finalPose));
         }
     }
@@ -56,25 +59,24 @@ public class AutonomousLeft extends LinearOpMode {
 
     private TrajectorySequence defaultTrajectory(Pose2d finalPose) {
 
-        TrajectorySequence defualtSeq = drive
-                .trajectorySequenceBuilder(startPose)
-                .addTemporalMarker(() -> lifter.high())
-                .waitSeconds(1)
-                .lineToSplineHeading(new Pose2d(-11, -61, Math.toRadians(0)))
-                .strafeLeft(42)
-                .forward(3)
-                .waitSeconds(.5)
-                .addTemporalMarker(() -> lifter.downish())
-                .addTemporalMarker(() -> grabber.drop())
-                .waitSeconds(1)
-                .back(3)
-                .strafeLeft(13)
-                .lineToLinearHeading(finalPose)
-                .addTemporalMarker(() -> lifter.low())
-                .waitSeconds(20)
-                .build();
+        return drive.trajectorySequenceBuilder(startPose)
+                    .addTemporalMarker(() -> lifter.high())
+                    .waitSeconds(5)
+                    .lineToSplineHeading(new Pose2d(-11, -61, Math.toRadians(0)))
+                    .strafeLeft(43)
+                    .forward(2.5)
+                    .waitSeconds(1)
+                    .addTemporalMarker(() -> lifter.downish())
+                    .waitSeconds(.5)
+                    .addTemporalMarker(() -> grabber.drop())
+                    .waitSeconds(1)
+                    .back(2.5)
+                    .strafeLeft(14)
+                    .lineToLinearHeading(finalPose)
+                    .addTemporalMarker(() -> lifter.ground())
+                    .waitSeconds(20)
+                    .build();
 
-        return defualtSeq;
     }
 
 }
