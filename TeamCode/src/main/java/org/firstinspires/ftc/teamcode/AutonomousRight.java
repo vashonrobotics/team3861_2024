@@ -9,56 +9,54 @@ import org.firstinspires.ftc.teamcode.subsystems.Lifter;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-//import org.firstinspires.ftc.teamcode.subsystems.GrabberCRServo;
 import org.firstinspires.ftc.teamcode.subsystems.GrabberServo;
 
 
 @Config
 @Autonomous(group = "drive")
+@SuppressWarnings({ "unused" })
+
 public class AutonomousRight extends LinearOpMode {
 
-    private final Pose2d startPose = new Pose2d(36, -61, Math.toRadians(90));
     private BotMecanumDrive drive;
     private Lifter lifter;
-    private Vision vision;
-
-    //private GrabberCRServo grabber;
     private GrabberServo grabber;
 
-
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
 
         drive = new BotMecanumDrive(hardwareMap);
         lifter = new Lifter(this);
-        vision = new Vision( this );
-
-        //grabber = new GrabberCRServo(this);
+        Vision vision = new Vision(this);
         grabber = new GrabberServo(this);
 
         lifter.init();
         grabber.init();
         vision.init();
 
-        drive.setPoseEstimate(startPose);
-
         if (isStopRequested()) return;
 
         waitForStart();
 
+        Pose2d finalPosition = vision.detectFinalPosition("right");
+        String detectedImage = vision.getDetectedImage();
+
         while (!isStopRequested()) {
 
-            Pose2d finalPose = vision.detectFinalPosition("right");
-            telemetry.addData("finalPositionX", finalPose.getX());
+            telemetry.addData("Detected Image:", detectedImage);
+            telemetry.addData("FinalPostion:", finalPosition);
             telemetry.update();
 
-            drive.followTrajectorySequence(defaultTrajectory(finalPose));
+            drive.followTrajectorySequence(defaultTrajectory(finalPosition));
 
         }
     }
 
     private TrajectorySequence defaultTrajectory(Pose2d finalPose) {
 
+        Pose2d startPose = new Pose2d(36, -61, Math.toRadians(90));
+
+        drive.setPoseEstimate(startPose);
 
         return drive.trajectorySequenceBuilder(startPose)
                     .addTemporalMarker(() -> lifter.high())
