@@ -44,12 +44,39 @@ public class AutonomousLeft extends LinearOpMode {
             telemetry.addData("FinalPostion:", finalPosition);
             telemetry.update();
 
-            drive.followTrajectorySequence(defaultTrajectory(finalPosition));
+            // drive.followTrajectorySequence(defaultTrajectory(finalPosition));
         }
     }
 
 
     private TrajectorySequence defaultTrajectory(Pose2d finalPose) {
+
+        Pose2d startPose = new Pose2d(-36, -61, Math.toRadians(90));
+
+        drive.setPoseEstimate(startPose);
+
+        return drive.trajectorySequenceBuilder(startPose)
+                    .addTemporalMarker(() -> lifter.high())
+                    .waitSeconds(5)
+                    .lineToSplineHeading(new Pose2d(-11, -61, Math.toRadians(0)))
+                    .strafeLeft(43)
+                    .forward(2.5)
+                    .waitSeconds(1)
+                    .addTemporalMarker(() -> lifter.downish())
+                    .waitSeconds(.5)
+                    .addTemporalMarker(() -> grabber.drop())
+                    .waitSeconds(1)
+                    .back(2.5)
+                    .strafeLeft(14)
+                    .lineToLinearHeading(finalPose)
+                    .addTemporalMarker(() -> lifter.ground())
+                    .waitSeconds(20)
+                    .build();
+
+    }
+
+
+    private TrajectorySequence testTrajectory(Pose2d finalPose) {
 
         Pose2d startPose = new Pose2d(-36, -61, Math.toRadians(90));
 

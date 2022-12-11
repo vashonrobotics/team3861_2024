@@ -66,16 +66,16 @@ public class Vision {
 
         tfodParameters.minResultConfidence = 0.80f;
         tfodParameters.isModelTensorFlow2 = true;
-        tfodParameters.inputSize = 640;
+        tfodParameters.inputSize = 320;
         tfodParameters.maxNumDetections = 1;
 
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
 
-        tfod.loadModelFromAsset("Power.tflite", "image1", "image2", "image3");
+        tfod.loadModelFromAsset("Power-v2.tflite", "image1", "image2", "image3");
 
         if (tfod != null) {
             tfod.activate();
-            tfod.setZoom(1, 16.0 / 9.0);
+            tfod.setZoom(1.3, 16.0 / 9.0);
         }
 
         // default positions for both left and right sides
