@@ -25,7 +25,12 @@ public class Vision {
     ArrayList<Pose2d> leftPose = new ArrayList<>();
     ArrayList<Pose2d> rightPose = new ArrayList<>();
 
+    ArrayList<Integer> leftPoseForStrafe = new ArrayList<>();
+    ArrayList<Integer> rightPoseForStrafe = new ArrayList<>();
+
+
     HashMap<String, ArrayList<Pose2d>> finalPositions = new HashMap<>();
+    HashMap<String, ArrayList<Integer>> finalPositionsForStrafe = new HashMap<>();
 
     public Vision (LinearOpMode opMode) {
         robotOpMode = opMode;
@@ -66,7 +71,7 @@ public class Vision {
 
         tfodParameters.minResultConfidence = 0.80f;
         tfodParameters.isModelTensorFlow2 = true;
-        tfodParameters.inputSize = 320;
+        tfodParameters.inputSize = 340;
         tfodParameters.maxNumDetections = 1;
 
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
@@ -75,8 +80,9 @@ public class Vision {
 
         if (tfod != null) {
             tfod.activate();
-            tfod.setZoom(1.3, 16.0 / 9.0);
+            tfod.setZoom(1.4, 16.0 / 9.0);
         }
+
 
         // default positions for both left and right sides
 
@@ -90,8 +96,21 @@ public class Vision {
 
         finalPositions.put("right", rightPose);
         finalPositions.put("left", leftPose);
-    }
 
+
+        // default positions for strafe both left and right sides
+
+        leftPoseForStrafe.add(39);     // Left Position 1
+        leftPoseForStrafe.add(14);     // Left Position 2
+        leftPoseForStrafe.add(-14);    // Left Postionn 3
+
+        rightPoseForStrafe.add(-11);   // Right Position 1
+        rightPoseForStrafe.add(14);    // Right Position 2
+        rightPoseForStrafe.add(39);    // Right Postionn 3
+
+        finalPositionsForStrafe.put("right", rightPoseForStrafe);
+        finalPositionsForStrafe.put("left", leftPoseForStrafe);
+    }
 
 
 
@@ -166,5 +185,79 @@ public class Vision {
         return finalPosition;
     }
 
+    public int detectFinalPositionForStrafe (String side) throws AssertionError {
+        long runTime = System.currentTimeMillis();
+
+        ArrayList<Integer> finalStrafe = finalPositionsForStrafe.get(side);
+
+        if (finalStrafe == null) throw new AssertionError();
+
+        // set default to Position 2 in case we can't detect the image
+        // we have a 1 in 3 chance of being correct
+
+        int finalPosition = finalStrafe.get(1);
+
+        // loop for 1.5 seconds
+
+        while (System.currentTimeMillis() - runTime < 1500) {
+
+            // break out of while loop if OpMode is stopped
+
+            if (robotOpMode.isStopRequested()) {
+                break;
+            }
+
+            // break out of while loop if image is detected
+
+            if (isImageDetected()) {
+                break;
+            }
+
+            // continue loop until tfod object is ready
+
+            if (tfod == null) {
+                continue;
+            }
+
+            // get list of recognized objects
+
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+
+            // continue loop if no objects are detected
+
+            if (updatedRecognitions == null) {
+                continue;
+            }
+
+            // loop over each detected object
+
+            for (Recognition object : updatedRecognitions) {
+                String label = object.getLabel();
+
+                if (label.equals("image1")) {
+                    finalPosition = finalStrafe.get(0);
+                    detectedImage = "image1";
+                }
+
+                if (label.equals("image2")) {
+                    finalPosition = finalStrafe.get(1);
+                    detectedImage = "image2";
+                }
+
+                if (label.equals("image3")) {
+                    finalPosition = finalStrafe.get(2);
+                    detectedImage = "image3";
+                }
+            }
+        }
+
+        // return the final position
+
+        return finalPosition;
+    }
+
 }
+
+
+
 

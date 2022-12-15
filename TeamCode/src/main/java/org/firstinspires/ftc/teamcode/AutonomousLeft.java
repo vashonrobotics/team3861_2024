@@ -36,7 +36,8 @@ public class AutonomousLeft extends LinearOpMode {
 
         waitForStart();
 
-        Pose2d finalPosition = vision.detectFinalPosition("left");
+      //  Pose2d finalPosition = vision.detectFinalPosition("left");
+        int finalPosition = vision.detectFinalPositionForStrafe("left");
         String detectedImage = vision.getDetectedImage();
 
         while (!isStopRequested()) {
@@ -44,7 +45,7 @@ public class AutonomousLeft extends LinearOpMode {
             telemetry.addData("FinalPostion:", finalPosition);
             telemetry.update();
 
-            // drive.followTrajectorySequence(defaultTrajectory(finalPosition));
+            drive.followTrajectorySequence(testTrajectory(finalPosition));
         }
     }
 
@@ -76,7 +77,7 @@ public class AutonomousLeft extends LinearOpMode {
     }
 
 
-    private TrajectorySequence testTrajectory(Pose2d finalPose) {
+    private TrajectorySequence testTrajectory(int finalPose) {
 
         Pose2d startPose = new Pose2d(-36, -61, Math.toRadians(90));
 
@@ -84,20 +85,31 @@ public class AutonomousLeft extends LinearOpMode {
 
         return drive.trajectorySequenceBuilder(startPose)
                     .addTemporalMarker(() -> lifter.high())
-                    .waitSeconds(5)
-                    .lineToSplineHeading(new Pose2d(-11, -61, Math.toRadians(0)))
-                    .strafeLeft(43)
-                    .forward(2.5)
-                    .waitSeconds(1)
-                    .addTemporalMarker(() -> lifter.downish())
-                    .waitSeconds(.5)
+                    .forward(3)
+                    .strafeRight(26)
+                    .turn(Math.toRadians(-90))
+                    .strafeLeft(38.5)
+                    .forward(3.5)
+                    .waitSeconds(.25)
                     .addTemporalMarker(() -> grabber.drop())
-                    .waitSeconds(1)
-                    .back(2.5)
+                    .addTemporalMarker(() -> lifter.cone())
+                    .back(3.5)
                     .strafeLeft(14)
-                    .lineToLinearHeading(finalPose)
+                    .turn(Math.toRadians(182))
+                    .forward(49.5)
+                    .addTemporalMarker(() -> grabber.grab())
+                    .addTemporalMarker(() -> lifter.high())
+                    .waitSeconds(.5)
+                    .back(14)
+                    .turn(Math.toRadians(-91))
+                    .strafeRight(21.25)
+                    .forward(4)
+                    .waitSeconds(.25)
+                    .addTemporalMarker(() -> grabber.drop())
                     .addTemporalMarker(() -> lifter.ground())
-                    .waitSeconds(20)
+                    .back(4)
+                    .strafeLeft(finalPose)
+                    .waitSeconds(5)
                     .build();
 
     }

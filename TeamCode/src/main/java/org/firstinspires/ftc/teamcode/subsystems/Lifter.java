@@ -13,7 +13,7 @@ public class Lifter {
 
     //cone is 5 cones stacked tall
 
-    private final int   CONE  = 205;
+    private final int   CONE  = 200;
     private final int   HIGH  = 1565;
     private final int   DOWNISH = 1450;
     private final int    MID  = 1140;
