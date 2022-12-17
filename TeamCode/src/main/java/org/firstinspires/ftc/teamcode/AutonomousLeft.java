@@ -10,6 +10,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.subsystems.GrabberServo;
 
+import java.util.ArrayList;
+
 @Config
 @Autonomous(group = "drive")
 @SuppressWarnings({ "unused" })
@@ -19,6 +21,9 @@ public class AutonomousLeft extends LinearOpMode {
     private BotMecanumDrive drive;
     private Lifter lifter;
     private GrabberServo grabber;
+    // private ArrayList<Pose2d> finalPosePositions = new ArrayList<>();
+    private ArrayList<Integer> finalStrafePositions = new ArrayList<>();
+
 
     @Override
     public void runOpMode() {
@@ -32,13 +37,31 @@ public class AutonomousLeft extends LinearOpMode {
         grabber.init();
         vision.init();
 
+        // default Left Pose2d positions
+
+        // finalPosePositions.add(new Pose2d(-57, -11, Math.toRadians(0)));   // Left Position 1
+        // finalPosePositions.add(new Pose2d(-36, -11, Math.toRadians(0)));   // Left Position 2
+        // finalPosePositions.add(new Pose2d(-12, -11, Math.toRadians(0)));   // Left Postiion 3
+
+        // default Left Strafe positions
+//40
+        finalStrafePositions.add(39);   // Left Position 1
+        finalStrafePositions.add(14);   // Left Position 2
+        finalStrafePositions.add(-11);  // Left Postionn 3
+
         if (isStopRequested()) return;
 
         waitForStart();
 
-      //  Pose2d finalPosition = vision.detectFinalPosition("left");
-        int finalPosition = vision.detectFinalPositionForStrafe("left");
+        // Pose2d finalPosition = vision.detectFinalPosePosition(finalPosePositions);
+
+        int finalPosition = vision.detectFinalStrafePosition(finalStrafePositions);
+
         String detectedImage = vision.getDetectedImage();
+
+        if (detectedImage == null) {
+            detectedImage = "None: default";
+        }
 
         while (!isStopRequested()) {
             telemetry.addData("Detected Image:", detectedImage);
@@ -86,30 +109,30 @@ public class AutonomousLeft extends LinearOpMode {
         return drive.trajectorySequenceBuilder(startPose)
                     .addTemporalMarker(() -> lifter.high())
                     .forward(3)
-                    .strafeRight(26)
+                    .strafeRight(25)
                     .turn(Math.toRadians(-90))
                     .strafeLeft(38.5)
-                    .forward(3.5)
-                    .waitSeconds(.25)
+                    .forward(2)
+                    .waitSeconds(0.15)
                     .addTemporalMarker(() -> grabber.drop())
                     .addTemporalMarker(() -> lifter.cone())
-                    .back(3.5)
-                    .strafeLeft(14)
-                    .turn(Math.toRadians(182))
-                    .forward(49.5)
+                    .back(2)
+                    .strafeLeft(12.25)
+                    .turn(Math.toRadians(180))
+                    .forward(49.75)
                     .addTemporalMarker(() -> grabber.grab())
                     .addTemporalMarker(() -> lifter.high())
-                    .waitSeconds(.5)
-                    .back(14)
-                    .turn(Math.toRadians(-91))
-                    .strafeRight(21.25)
-                    .forward(4)
-                    .waitSeconds(.25)
+                    .waitSeconds(0.5)
+                    .back(23.00)
+                    .turn(Math.toRadians(-90.50))
+                    .strafeRight(14.75)
+                    .forward(2.75)
+                    .waitSeconds(0.15)
                     .addTemporalMarker(() -> grabber.drop())
                     .addTemporalMarker(() -> lifter.ground())
-                    .back(4)
+                    .back(2.75)
                     .strafeLeft(finalPose)
-                    .waitSeconds(5)
+                    .waitSeconds(30)
                     .build();
 
     }

@@ -9,28 +9,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
+@SuppressWarnings({ "unused"})
 
 public class Vision {
-
     private final LinearOpMode robotOpMode;
-
     private TFObjectDetector tfod;
-
     private String detectedImage = null;
 
-    ArrayList<Pose2d> leftPose = new ArrayList<>();
-    ArrayList<Pose2d> rightPose = new ArrayList<>();
-
-    ArrayList<Integer> leftPoseForStrafe = new ArrayList<>();
-    ArrayList<Integer> rightPoseForStrafe = new ArrayList<>();
-
-
-    HashMap<String, ArrayList<Pose2d>> finalPositions = new HashMap<>();
-    HashMap<String, ArrayList<Integer>> finalPositionsForStrafe = new HashMap<>();
 
     public Vision (LinearOpMode opMode) {
         robotOpMode = opMode;
@@ -41,6 +29,10 @@ public class Vision {
     }
 
     public String getDetectedImage () {
+        if (detectedImage == null) {
+            return "None: (default)";
+        }
+
         return detectedImage;
     }
 
@@ -71,60 +63,29 @@ public class Vision {
 
         tfodParameters.minResultConfidence = 0.80f;
         tfodParameters.isModelTensorFlow2 = true;
-        tfodParameters.inputSize = 340;
+        tfodParameters.inputSize = 320;
         tfodParameters.maxNumDetections = 1;
 
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
 
-        tfod.loadModelFromAsset("Power-v2.tflite", "image1", "image2", "image3");
+        tfod.loadModelFromAsset("Power-v3.tflite", "image1", "image2", "image3");
 
         if (tfod != null) {
             tfod.activate();
-            tfod.setZoom(1.4, 16.0 / 9.0);
+            tfod.setClippingMargins(215,0,80,0);
+            tfod.setZoom(1.0, 16.0 / 9.0);
         }
-
-
-        // default positions for both left and right sides
-
-        leftPose.add(new Pose2d(-57, -11, Math.toRadians(0)));     // Left Position 1
-        leftPose.add(new Pose2d(-36, -11, Math.toRadians(0)));     // Left Position 2
-        leftPose.add(new Pose2d(-12, -11, Math.toRadians(0)));     // Left Postionn 3
-
-        rightPose.add(new Pose2d(12, -11, Math.toRadians(180)));   // Right Position 1
-        rightPose.add(new Pose2d(36, -13, Math.toRadians(180)));   // Right Position 2
-        rightPose.add(new Pose2d(55, -10, Math.toRadians(180)));   // Right Postionn 3
-
-        finalPositions.put("right", rightPose);
-        finalPositions.put("left", leftPose);
-
-
-        // default positions for strafe both left and right sides
-
-        leftPoseForStrafe.add(39);     // Left Position 1
-        leftPoseForStrafe.add(14);     // Left Position 2
-        leftPoseForStrafe.add(-14);    // Left Postionn 3
-
-        rightPoseForStrafe.add(-11);   // Right Position 1
-        rightPoseForStrafe.add(14);    // Right Position 2
-        rightPoseForStrafe.add(39);    // Right Postionn 3
-
-        finalPositionsForStrafe.put("right", rightPoseForStrafe);
-        finalPositionsForStrafe.put("left", leftPoseForStrafe);
     }
 
 
 
-    public Pose2d detectFinalPosition (String side) throws AssertionError {
+    public Pose2d detectFinalPosePosition (ArrayList<Pose2d> finalPosePositions) {
         long runTime = System.currentTimeMillis();
-
-        ArrayList<Pose2d> finalPose = finalPositions.get(side);
-
-        if (finalPose == null) throw new AssertionError();
 
         // set default to Position 2 in case we can't detect the image
         // we have a 1 in 3 chance of being correct
 
-        Pose2d finalPosition = finalPose.get(1);
+        Pose2d finalPosePosition = finalPosePositions.get(1);
 
         // loop for 1.5 seconds
 
@@ -164,17 +125,17 @@ public class Vision {
                 String label = object.getLabel();
 
                 if (label.equals("image1")) {
-                    finalPosition = finalPose.get(0);
+                    finalPosePosition = finalPosePositions.get(0);
                     detectedImage = "image1";
                 }
 
                 if (label.equals("image2")) {
-                    finalPosition = finalPose.get(1);
+                    finalPosePosition = finalPosePositions.get(1);
                     detectedImage = "image2";
                 }
 
                 if (label.equals("image3")) {
-                    finalPosition = finalPose.get(2);
+                    finalPosePosition = finalPosePositions.get(2);
                     detectedImage = "image3";
                 }
             }
@@ -182,20 +143,16 @@ public class Vision {
 
         // return the final position
 
-        return finalPosition;
+        return finalPosePosition;
     }
 
-    public int detectFinalPositionForStrafe (String side) throws AssertionError {
+    public Integer detectFinalStrafePosition (ArrayList<Integer> finalStrafePositions) {
         long runTime = System.currentTimeMillis();
-
-        ArrayList<Integer> finalStrafe = finalPositionsForStrafe.get(side);
-
-        if (finalStrafe == null) throw new AssertionError();
 
         // set default to Position 2 in case we can't detect the image
         // we have a 1 in 3 chance of being correct
 
-        int finalPosition = finalStrafe.get(1);
+        Integer finalStrafePosition = finalStrafePositions.get(1);
 
         // loop for 1.5 seconds
 
@@ -235,17 +192,17 @@ public class Vision {
                 String label = object.getLabel();
 
                 if (label.equals("image1")) {
-                    finalPosition = finalStrafe.get(0);
+                    finalStrafePosition = finalStrafePositions.get(0);
                     detectedImage = "image1";
                 }
 
                 if (label.equals("image2")) {
-                    finalPosition = finalStrafe.get(1);
+                    finalStrafePosition = finalStrafePositions.get(1);
                     detectedImage = "image2";
                 }
 
                 if (label.equals("image3")) {
-                    finalPosition = finalStrafe.get(2);
+                    finalStrafePosition = finalStrafePositions.get(2);
                     detectedImage = "image3";
                 }
             }
@@ -253,9 +210,8 @@ public class Vision {
 
         // return the final position
 
-        return finalPosition;
+        return finalStrafePosition;
     }
-
 }
 
 
