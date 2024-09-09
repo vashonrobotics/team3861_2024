@@ -31,7 +31,7 @@ public class MecanumDrive {
         this.motors = motors;
     }
 
-    public void setPowerRaw(Vector4 power) {
+    public void setPowerRaw(@NonNull Vector4 power) {
         for(int i = 0; i < 4; i++) {
             motors[i].setPower(power.get(i));
         }
@@ -45,6 +45,18 @@ public class MecanumDrive {
         for(int i = 0; i < 4; i++) {
             motors[i].setDirection(dirs[i]);
         }
+    }
+
+    public void setPower(double x, double y, double yaw) {
+        setPower(right.mul(x).add(forward.mul(y).add(clockwise.mul(yaw))));
+    }
+
+    public Vector4 getPosition() {
+        Vector4 ret = new Vector4();
+        for(int i = 0; i < 4; i++) {
+            ret.set(i, motors[i].getCurrentPosition());
+        }
+        return ret;
     }
 
     public void init() {} // virtual
