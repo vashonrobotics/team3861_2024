@@ -24,6 +24,8 @@ public class GameTele extends LinearOpMode {
         hardwareMap.get(DcMotor.class, "right_back_drive")
         );
 
+        Button dampenRoll = new Button();
+
         drive.setDirection(HardwareConstants.driveDirs);
 
         // Wait for the game to start (driver presses PLAY)
@@ -39,26 +41,12 @@ public class GameTele extends LinearOpMode {
             double lateral =  gamepad1.left_stick_x;
             double yaw     =  gamepad1.right_stick_x;
 
-            Vector4 movement =
-                    MecanumDrive.forward.mul(axial).add(
-                    MecanumDrive.right.mul(lateral)).add(
-                            MecanumDrive.clockwise.mul(yaw * HardwareConstants.yawSens)).cap(1);
+            drive.setPower(lateral, axial, yaw);
 
-            // This is test code:
-            //
-            // Uncomment the following code to test your motor directions.
-            // Each button should make the corresponding motor run FORWARD.
-            //   1) First get all the motors to take to correct positions on the robot
-            //      by adjusting your Robot Configuration if necessary.
-            //   2) Then make sure they run in the correct direction by modifying the
-            //      the setDirection() calls above.
-            // Once the correct motors move in the correct direction re-comment this code.
-
-            /*
-            leftFrontPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
-            leftBackPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
-            rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
-            rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
-            */
+            dampenRoll.update(gamepad1.right_bumper);
+            if(dampenRoll.pressed())
+                drive.dampenRoll = !drive.dampenRoll;
+            telemetry.addData("Roll Dampening", drive.dampenRoll ? "on" : "off");
+            telemetry.update();
         }
     }}

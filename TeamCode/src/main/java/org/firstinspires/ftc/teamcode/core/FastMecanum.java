@@ -11,6 +11,7 @@ public class FastMecanum extends MecanumDrive {
     private Vector4 lastPos = new Vector4();
     private ElapsedTime t;
     public static final double counterForce = 0.5;
+    public boolean dampenRoll = true;
 
     public FastMecanum(DcMotor a, DcMotor b, DcMotor c, DcMotor d) {
         super(a, b, c, d);
@@ -23,7 +24,7 @@ public class FastMecanum extends MecanumDrive {
             DcMotor m = motors[i];
             m.setMode(RunMode.STOP_AND_RESET_ENCODER);
             m.setMode(RunMode.RUN_WITHOUT_ENCODER);
-            m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         }
     }
 
@@ -31,11 +32,12 @@ public class FastMecanum extends MecanumDrive {
     public void setPower(Vector4 power) {
         double elapsed = t.milliseconds();
         Vector4 pos = getPosition();
-        Vector4 vel = pos.sub(lastPos).mul(1/elapsed); // counts per millisecond
-        if(elapsed > HardwareConstants.motionThreshold) {
+
+        if(elapsed > HardwareConstants.motionThreshold || !dampenRoll) {
             super.setPower(power);
         }
         else {
+            Vector4 vel = pos.sub(lastPos).mul(1/elapsed); // counts per millisecond
             super.setPower(power.sub(vel.mul(counterForce)));
         }
         lastPos = pos;
