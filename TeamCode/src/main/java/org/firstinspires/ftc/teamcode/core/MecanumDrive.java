@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 
 // base mecanum class - works for basic teleop, but please extend for specific functionality
 public class MecanumDrive {
-    private DcMotor[] motors;
+    protected DcMotor[] motors;
 
     public static final Vector4 forward = new Vector4(1);
     public static final Vector4 right = new Vector4(-1, 1, 1, -1);
@@ -46,4 +46,6 @@ public class MecanumDrive {
             motors[i].setDirection(dirs[i]);
         }
     }
+
+    public void init() {} // virtual
 }

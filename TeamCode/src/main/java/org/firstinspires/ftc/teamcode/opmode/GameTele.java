@@ -13,11 +13,11 @@ import org.firstinspires.ftc.teamcode.core.*;
 public class GameTele extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
-    private MecanumDrive drive;
+    private FastMecanum drive;
 
     @Override
     public void runOpMode() {
-        drive = new MecanumDrive(
+        drive = new FastMecanum(
         hardwareMap.get(DcMotor.class, "left_front_drive"),
         hardwareMap.get(DcMotor.class, "right_front_drive"),
                 hardwareMap.get(DcMotor.class, "left_back_drive"),
